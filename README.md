@@ -29,7 +29,7 @@ Scanarr is a self-hosted web application that automatically monitors, downloads,
 
 ```bash
 # 1. Clone
-git clone https://github.com/your-org/scanarr.git
+git clone https://github.com/rushapoil/scanarr.git
 cd scanarr
 
 # 2. Configure
