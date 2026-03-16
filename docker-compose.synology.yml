@@ -1,0 +1,79 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  Scanarr — Synology NAS deployment
+#
+#  How to use with Synology Container Manager (DSM 7.x):
+#
+#  Option A — pull pre-built image (recommended once CI is set up):
+#    1. In Container Manager → Registry, pull ghcr.io/your-org/scanarr:latest
+#    2. Import this file via Container Manager → Project → Create → Upload
+#
+#  Option B — build locally and load on NAS:
+#    On your PC:
+#      docker buildx build --platform linux/amd64 -t scanarr:latest --load .
+#      docker save scanarr:latest | gzip > scanarr.tar.gz
+#    On the NAS via SSH:
+#      docker load < scanarr.tar.gz
+#    Then use this compose file with image: scanarr:latest (uncomment line below)
+#
+#  Option C — build directly on NAS (requires 2+ GB free RAM, not for DS218):
+#    SSH into the NAS and run:
+#      git clone https://github.com/your-org/scanarr /volume1/docker/scanarr
+#      cd /volume1/docker/scanarr
+#      docker compose -f docker-compose.synology.yml up --build -d
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  scanarr:
+    # Uncomment one of the following:
+    build:                          # build on NAS (Option C)
+      context: .
+      dockerfile: Dockerfile
+    # image: scanarr:latest         # pre-built image (Option A/B)
+    # image: ghcr.io/your-org/scanarr:latest
+
+    container_name: scanarr
+    restart: unless-stopped
+    ports:
+      - "8080:8080"                 # change left side to avoid port conflicts
+    volumes:
+      # Synology: adapt to your actual share paths
+      - /volume1/docker/scanarr/config:/config
+      - /volume1/manga:/manga       # or /volume1/media/manga, etc.
+    environment:
+      - CONFIG_DIR=/config
+      - DATA_DIR=/manga
+      - LOG_LEVEL=info
+      - PORT=8080
+      # ── Auth ─────────────────────────────────────────────────────────────────
+      - AUTH_REQUIRED=true
+      - AUTH_USERNAME=admin
+      # Generate hash:
+      #   docker run --rm python:3.12-slim \
+      #     python -c "from passlib.context import CryptContext; \
+      #                print(CryptContext(['bcrypt']).hash('YOUR_PASSWORD'))"
+      - AUTH_PASSWORD_HASH=
+      # ── Timezone ─────────────────────────────────────────────────────────────
+      - TZ=Europe/Paris
+      # ── Scheduler intervals ───────────────────────────────────────────────────
+      - RSS_POLL_INTERVAL=60
+      - QUEUE_SYNC_INTERVAL=30
+      - METADATA_REFRESH_INTERVAL=24
+    # Keep Synology-friendly resource limits
+    mem_limit: 256m
+    mem_reservation: 64m
+    # Run as the default Synology 'sc-nobody' UID to respect share permissions
+    # Uncomment if you have permission issues:
+    # user: "65534:65534"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/api/v1/system/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,45 @@
+version: "3.9"
+
+# Development — hot-reload, no auth, CORS open.
+# Usage: docker compose -f docker-compose.dev.yml up --build
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: scanarr-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app          # live code reload
+      - ./config:/config
+      - ./manga:/manga
+    environment:
+      - CONFIG_DIR=/config
+      - DATA_DIR=/manga
+      - LOG_LEVEL=debug
+      - DEBUG=true
+      - AUTH_REQUIRED=false
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      - TZ=Europe/Paris
+    command: >
+      sh -c "mkdir -p /config /manga &&
+             alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: scanarr-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules       # isolated from host
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    command: npm run dev -- --host 0.0.0.0 --port 5173
