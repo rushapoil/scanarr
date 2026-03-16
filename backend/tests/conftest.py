@@ -1,7 +1,5 @@
 """Pytest fixtures shared across all tests."""
-import asyncio
 import os
-from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -17,14 +15,7 @@ from app.main import app
 from app.db.database import Base, get_db
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def db_session():
     """In-memory SQLite session, tables created fresh per test."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
@@ -38,7 +29,7 @@ async def db_session():
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def client(db_session: AsyncSession):
     """HTTP test client with DB overridden to in-memory session."""
 
