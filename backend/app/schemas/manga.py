@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import List, Optional
 
-from pydantic import BaseModel, field_validator, model_validator
-
+from pydantic import BaseModel, field_validator
 
 # ── Genre ─────────────────────────────────────────────────────────────────────
 
@@ -20,11 +18,11 @@ class GenreOut(BaseModel):
 class ChapterBrief(BaseModel):
     id: int
     chapter_number: float
-    volume_number: Optional[int]
-    title: Optional[str]
+    volume_number: int | None
+    title: str | None
     monitored: bool
     downloaded: bool
-    release_date: Optional[datetime]
+    release_date: datetime | None
     model_config = {"from_attributes": True}
 
 
@@ -35,41 +33,41 @@ class MangaBase(BaseModel):
     monitored: bool = True
     monitor_status: str = "all"
     root_folder_path: str = "/manga"
-    quality_profile_id: Optional[int] = None
-    language_profile_id: Optional[int] = None
+    quality_profile_id: int | None = None
+    language_profile_id: int | None = None
 
 
 class MangaCreate(MangaBase):
     """Used when adding a manga by MangaDex ID or by search result."""
-    mangadex_id: Optional[str] = None
+    mangadex_id: str | None = None
 
 
 class MangaUpdate(BaseModel):
-    title: Optional[str] = None
-    monitored: Optional[bool] = None
-    monitor_status: Optional[str] = None
-    root_folder_path: Optional[str] = None
-    quality_profile_id: Optional[int] = None
-    language_profile_id: Optional[int] = None
+    title: str | None = None
+    monitored: bool | None = None
+    monitor_status: str | None = None
+    root_folder_path: str | None = None
+    quality_profile_id: int | None = None
+    language_profile_id: int | None = None
 
 
 class MangaOut(MangaBase):
     id: int
     title_slug: str
-    title_alt: Optional[List[str]] = None
-    mangadex_id: Optional[str] = None
-    anilist_id: Optional[int] = None
-    mal_id: Optional[int] = None
+    title_alt: list[str] | None = None
+    mangadex_id: str | None = None
+    anilist_id: int | None = None
+    mal_id: int | None = None
 
-    author: Optional[str] = None
-    artist: Optional[str] = None
-    synopsis: Optional[str] = None
-    cover_url: Optional[str] = None
-    cover_local: Optional[str] = None
+    author: str | None = None
+    artist: str | None = None
+    synopsis: str | None = None
+    cover_url: str | None = None
+    cover_local: str | None = None
 
     status: str
-    year: Optional[int] = None
-    publisher: Optional[str] = None
+    year: int | None = None
+    publisher: str | None = None
 
     chapter_count: int
     monitored_chapter_count: int
@@ -77,9 +75,9 @@ class MangaOut(MangaBase):
 
     added_at: datetime
     updated_at: datetime
-    last_searched_at: Optional[datetime] = None
+    last_searched_at: datetime | None = None
 
-    genres: List[GenreOut] = []
+    genres: list[GenreOut] = []
 
     model_config = {"from_attributes": True}
 
@@ -96,7 +94,7 @@ class MangaOut(MangaBase):
 
 class MangaDetail(MangaOut):
     """Full manga with chapters list."""
-    chapters: List[ChapterBrief] = []
+    chapters: list[ChapterBrief] = []
 
 
 # ── MangaDex search result (before adding to library) ────────────────────────
@@ -104,12 +102,12 @@ class MangaDetail(MangaOut):
 class MangaDexResult(BaseModel):
     mangadex_id: str
     title: str
-    title_alt: List[str] = []
-    author: Optional[str] = None
-    artist: Optional[str] = None
-    synopsis: Optional[str] = None
-    cover_url: Optional[str] = None
+    title_alt: list[str] = []
+    author: str | None = None
+    artist: str | None = None
+    synopsis: str | None = None
+    cover_url: str | None = None
     status: str
-    year: Optional[int] = None
-    genres: List[str] = []
+    year: int | None = None
+    genres: list[str] = []
     already_in_library: bool = False

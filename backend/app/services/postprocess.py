@@ -7,7 +7,6 @@ import logging
 import re
 import shutil
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ def sanitise(name: str, replace: bool = True) -> str:
     return name
 
 
-def _resolve_template(template: str, manga_title: str, chapter_num: float, chapter_title: Optional[str]) -> str:
+def _resolve_template(template: str, manga_title: str, chapter_num: float, chapter_title: str | None) -> str:
     """
     Replace template tokens:
       {Manga Title}      → manga title
@@ -52,6 +51,7 @@ async def process_download(db, queue_item) -> None:
     6. Trigger notifications.
     """
     from sqlalchemy import select
+
     from app.db import models
 
     if not queue_item.chapter_id:
@@ -156,12 +156,12 @@ async def process_download(db, queue_item) -> None:
         logger.exception("Notification failed after import")
 
 
-def _find_downloaded_file(queue_item) -> Optional[Path]:
+def _find_downloaded_file(queue_item) -> Path | None:
     """
     Best-effort: look for a file matching the queue title in /downloads/<category>/.
     In production this would be configured per-client.
     """
-    search_root = Path("/downloads") / (queue_item.download_url or "").split("/")[-1]
+    Path("/downloads") / (queue_item.download_url or "").split("/")[-1]
     # Simplified: just return None if we can't find it.
     # A real implementation would query the client for the save path.
     return None

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel
 
 
 class SystemStatus(BaseModel):
     app_name: str
     version: str
-    build_time: Optional[str]
+    build_time: str | None
     is_debug: bool
     db_path: str
     config_dir: str
@@ -33,5 +31,5 @@ class DiskSpace(BaseModel):
 class SchedulerJob(BaseModel):
     id: str
     name: str
-    next_run_time: Optional[str]
+    next_run_time: str | None
     trigger: str

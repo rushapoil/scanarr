@@ -1,14 +1,11 @@
-from __future__ import annotations
-
 from datetime import date, datetime, timedelta
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_current_user, get_db
 from app.db import models
 
 router = APIRouter()
@@ -18,14 +15,14 @@ class CalendarEntry(BaseModel):
     chapter_id: int
     manga_id: int
     manga_title: str
-    manga_cover: Optional[str]
+    manga_cover: str | None
     chapter_number: float
-    chapter_title: Optional[str]
+    chapter_title: str | None
     release_date: datetime
     downloaded: bool
 
 
-@router.get("", response_model=List[CalendarEntry])
+@router.get("", response_model=list[CalendarEntry])
 async def get_calendar(
     start: date = Query(default_factory=lambda: date.today() - timedelta(days=7)),
     end: date = Query(default_factory=lambda: date.today() + timedelta(days=30)),

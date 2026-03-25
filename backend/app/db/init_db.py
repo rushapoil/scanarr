@@ -1,11 +1,11 @@
 """First-run initialisation: create tables (via Alembic) and seed defaults."""
 import logging
 
-from sqlalchemy import select, text
+from sqlalchemy import select
 
 from app.core.security import generate_api_key
-from app.db.database import AsyncSessionLocal
 from app.db import models
+from app.db.database import AsyncSessionLocal
 
 logger = logging.getLogger(__name__)
 

@@ -3,18 +3,16 @@ Manga endpoints — mirrors Sonarr's /api/v3/series pattern.
 """
 from __future__ import annotations
 
-import json
 import re
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_current_user, get_db
 from app.db import models
-from app.schemas.manga import MangaCreate, MangaDetail, MangaOut, MangaUpdate, MangaDexResult
+from app.schemas.manga import MangaCreate, MangaDetail, MangaDexResult, MangaOut, MangaUpdate
 
 router = APIRouter()
 
@@ -28,10 +26,10 @@ def _slugify(title: str) -> str:
 
 # ── GET /manga ────────────────────────────────────────────────────────────────
 
-@router.get("", response_model=List[MangaOut])
+@router.get("", response_model=list[MangaOut])
 async def list_manga(
-    monitored: Optional[bool] = None,
-    status: Optional[str] = None,
+    monitored: bool | None = None,
+    status: str | None = None,
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
 ):
@@ -179,7 +177,7 @@ async def delete_manga(
 
 # ── POST /manga/lookup ────────────────────────────────────────────────────────
 
-@router.get("/lookup/search", response_model=List[MangaDexResult])
+@router.get("/lookup/search", response_model=list[MangaDexResult])
 async def lookup_manga(
     term: str = Query(..., min_length=2),
     db: AsyncSession = Depends(get_db),

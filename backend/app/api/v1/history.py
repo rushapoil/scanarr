@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_current_user, get_db
 from app.db import models
 
 router = APIRouter()
@@ -16,18 +15,18 @@ router = APIRouter()
 
 class HistoryItemOut(BaseModel):
     id: int
-    manga_id: Optional[int]
-    chapter_id: Optional[int]
+    manga_id: int | None
+    chapter_id: int | None
     event_type: str
-    source_title: Optional[str]
-    indexer: Optional[str]
-    download_client: Optional[str]
-    quality: Optional[str]
-    language: Optional[str]
-    size: Optional[int]
+    source_title: str | None
+    indexer: str | None
+    download_client: str | None
+    quality: str | None
+    language: str | None
+    size: int | None
     created_at: datetime
-    manga_title: Optional[str] = None
-    chapter_number: Optional[float] = None
+    manga_title: str | None = None
+    chapter_number: float | None = None
     model_config = {"from_attributes": True}
 
 
@@ -35,15 +34,15 @@ class HistoryPage(BaseModel):
     total_count: int
     page: int
     page_size: int
-    items: List[HistoryItemOut]
+    items: list[HistoryItemOut]
 
 
 @router.get("", response_model=HistoryPage)
 async def get_history(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
-    event_type: Optional[str] = None,
-    manga_id: Optional[int] = None,
+    event_type: str | None = None,
+    manga_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
 ):

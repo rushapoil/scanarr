@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_current_user, get_db
 from app.db import models
 from app.schemas.chapter import ChapterOut, ChapterUpdate
 
 router = APIRouter()
 
 
-@router.get("/manga/{manga_id}", response_model=List[ChapterOut])
+@router.get("/manga/{manga_id}", response_model=list[ChapterOut])
 async def list_chapters(
     manga_id: int,
     db: AsyncSession = Depends(get_db),

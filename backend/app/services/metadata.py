@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import List, Optional
 
 import httpx
 
@@ -110,7 +109,7 @@ def _parse_manga_item(item: dict) -> MangaDexResult:
     )
 
 
-async def search_mangadex(term: str, limit: int = 20) -> List[MangaDexResult]:
+async def search_mangadex(term: str, limit: int = 20) -> list[MangaDexResult]:
     """Search MangaDex by title, return parsed results."""
     client = _get_client()
     try:
@@ -133,7 +132,7 @@ async def search_mangadex(term: str, limit: int = 20) -> List[MangaDexResult]:
         return []
 
 
-async def fetch_manga_by_id(mangadex_id: str) -> Optional[MangaDexResult]:
+async def fetch_manga_by_id(mangadex_id: str) -> MangaDexResult | None:
     """Fetch a single manga's full metadata."""
     client = _get_client()
     try:
@@ -150,8 +149,8 @@ async def fetch_manga_by_id(mangadex_id: str) -> Optional[MangaDexResult]:
 
 async def fetch_chapters_for_manga(
     mangadex_id: str,
-    languages: List[str] | None = None,
-) -> List[dict]:
+    languages: list[str] | None = None,
+) -> list[dict]:
     """Fetch all chapter metadata for a manga."""
     client = _get_client()
     if languages is None:
@@ -220,7 +219,9 @@ async def fetch_and_update_manga(db, manga) -> None:
 async def _sync_chapters(db, manga) -> None:
     """Pull chapters from MangaDex and upsert into the DB."""
     from datetime import datetime
+
     from sqlalchemy import select
+
     from app.db import models
 
     # Determine languages from profile
@@ -299,8 +300,9 @@ async def _sync_chapters(db, manga) -> None:
 async def refresh_all_manga_metadata() -> None:
     """Called by the scheduler every METADATA_REFRESH_INTERVAL hours."""
     from sqlalchemy import select
-    from app.db.database import AsyncSessionLocal
+
     from app.db import models
+    from app.db.database import AsyncSessionLocal
 
     async with AsyncSessionLocal() as db:
         result = await db.execute(

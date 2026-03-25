@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_current_user, get_db
 from app.core.config import get_settings
 from app.core.scheduler import scheduler
 from app.schemas.system import DiskSpace, HealthCheck, SchedulerJob, SystemStatus
@@ -45,7 +45,9 @@ async def disk_space(
     _user: str = Depends(get_current_user),
 ):
     import shutil
+
     from sqlalchemy import select
+
     from app.db import models
 
     result = await db.execute(select(models.RootFolder))
@@ -104,6 +106,7 @@ async def get_api_key(
     _user: str = Depends(get_current_user),
 ):
     from sqlalchemy import select
+
     from app.db import models
     result = await db.execute(select(models.AppConfig).where(models.AppConfig.id == 1))
     cfg = result.scalar_one_or_none()

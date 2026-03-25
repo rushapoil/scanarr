@@ -5,7 +5,7 @@ Handles indexer sync and release searching via the Prowlarr API.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -32,7 +32,7 @@ async def test_connection(url: str, api_key: str) -> bool:
         return False
 
 
-async def fetch_indexers(url: str, api_key: str) -> List[Dict[str, Any]]:
+async def fetch_indexers(url: str, api_key: str) -> list[dict[str, Any]]:
     """Return list of indexer objects from Prowlarr."""
     async with _client(url, api_key) as c:
         resp = await c.get("/api/v1/indexer")
@@ -43,6 +43,7 @@ async def fetch_indexers(url: str, api_key: str) -> List[Dict[str, Any]]:
 async def sync_indexers_from_prowlarr(db, cfg) -> None:
     """Pull indexers from Prowlarr and upsert into local DB."""
     from sqlalchemy import select
+
     from app.db import models
 
     api_key = decrypt_secret(cfg.api_key_enc)
@@ -90,14 +91,14 @@ async def search_releases(
     url: str,
     api_key: str,
     query: str,
-    categories: Optional[List[int]] = None,
-    indexer_ids: Optional[List[int]] = None,
-) -> List[Dict[str, Any]]:
+    categories: list[int] | None = None,
+    indexer_ids: list[int] | None = None,
+) -> list[dict[str, Any]]:
     """
     Search for releases via Prowlarr's /api/v1/search endpoint.
     Returns a list of release dicts.
     """
-    params: Dict[str, Any] = {"query": query, "type": "search"}
+    params: dict[str, Any] = {"query": query, "type": "search"}
     if categories:
         params["categories"] = categories
     if indexer_ids:
@@ -113,7 +114,7 @@ async def search_releases(
         return []
 
 
-async def fetch_rss(url: str, api_key: str, indexer_id: int) -> List[Dict[str, Any]]:
+async def fetch_rss(url: str, api_key: str, indexer_id: int) -> list[dict[str, Any]]:
     """Fetch RSS feed from a specific Prowlarr indexer."""
     try:
         async with _client(url, api_key) as c:

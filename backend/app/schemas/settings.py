@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel
-
 
 # ── Prowlarr ──────────────────────────────────────────────────────────────────
 
@@ -18,7 +16,7 @@ class ProwlarrConfigOut(BaseModel):
     id: int
     url: str
     enabled: bool
-    last_sync: Optional[datetime]
+    last_sync: datetime | None
     model_config = {"from_attributes": True}
 
 
@@ -26,10 +24,10 @@ class ProwlarrConfigOut(BaseModel):
 
 class IndexerOut(BaseModel):
     id: int
-    prowlarr_id: Optional[int]
+    prowlarr_id: int | None
     name: str
     protocol: str
-    type: Optional[str]
+    type: str | None
     priority: int
     enabled: bool
     model_config = {"from_attributes": True}
@@ -43,10 +41,10 @@ class DownloadClientIn(BaseModel):
     host: str
     port: int
     use_ssl: bool = False
-    url_base: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None     # plain — will be encrypted before storage
-    api_key: Optional[str] = None      # plain — will be encrypted before storage
+    url_base: str | None = None
+    username: str | None = None
+    password: str | None = None     # plain — will be encrypted before storage
+    api_key: str | None = None      # plain — will be encrypted before storage
     category: str = "scanarr"
     priority: int = 0
     enabled: bool = True
@@ -60,8 +58,8 @@ class DownloadClientOut(BaseModel):
     host: str
     port: int
     use_ssl: bool
-    url_base: Optional[str]
-    username: Optional[str]
+    url_base: str | None
+    username: str | None
     category: str
     priority: int
     enabled: bool
@@ -83,7 +81,7 @@ class QualityProfileOut(BaseModel):
     id: int
     name: str
     is_default: bool
-    items: List[QualityProfileItemOut] = []
+    items: list[QualityProfileItemOut] = []
     model_config = {"from_attributes": True}
 
 
@@ -92,7 +90,7 @@ class QualityProfileOut(BaseModel):
 class LanguageProfileOut(BaseModel):
     id: int
     name: str
-    languages: List[str]
+    languages: list[str]
     model_config = {"from_attributes": True}
 
     @classmethod
@@ -150,6 +148,6 @@ class NotificationOut(BaseModel):
 class RootFolderOut(BaseModel):
     id: int
     path: str
-    free_space: Optional[int]
+    free_space: int | None
     is_default: bool
     model_config = {"from_attributes": True}

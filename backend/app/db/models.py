@@ -2,15 +2,19 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from sqlalchemy import (
-    Boolean, DateTime, Float, ForeignKey, Integer, Text, func,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    Text,
+    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
-
 
 # ── Manga & Chapters ──────────────────────────────────────────────────────────
 
@@ -20,25 +24,25 @@ class Manga(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     title_slug: Mapped[str] = mapped_column(Text, unique=True, nullable=False, index=True)
-    title_alt: Mapped[Optional[str]] = mapped_column(Text)          # JSON array of alt titles
+    title_alt: Mapped[str | None] = mapped_column(Text)          # JSON array of alt titles
 
     # External IDs
-    mangadex_id: Mapped[Optional[str]] = mapped_column(Text, unique=True, index=True)
-    anilist_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True)
-    mal_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True)
+    mangadex_id: Mapped[str | None] = mapped_column(Text, unique=True, index=True)
+    anilist_id: Mapped[int | None] = mapped_column(Integer, unique=True)
+    mal_id: Mapped[int | None] = mapped_column(Integer, unique=True)
 
     # Metadata
-    author: Mapped[Optional[str]] = mapped_column(Text)
-    artist: Mapped[Optional[str]] = mapped_column(Text)
-    synopsis: Mapped[Optional[str]] = mapped_column(Text)
-    cover_url: Mapped[Optional[str]] = mapped_column(Text)
-    cover_local: Mapped[Optional[str]] = mapped_column(Text)        # /config/covers/<slug>.jpg
+    author: Mapped[str | None] = mapped_column(Text)
+    artist: Mapped[str | None] = mapped_column(Text)
+    synopsis: Mapped[str | None] = mapped_column(Text)
+    cover_url: Mapped[str | None] = mapped_column(Text)
+    cover_local: Mapped[str | None] = mapped_column(Text)        # /config/covers/<slug>.jpg
 
     # Publication
     status: Mapped[str] = mapped_column(Text, nullable=False, default="ongoing")
     # ongoing | completed | hiatus | cancelled | upcoming
-    year: Mapped[Optional[int]] = mapped_column(Integer)
-    publisher: Mapped[Optional[str]] = mapped_column(Text)
+    year: Mapped[int | None] = mapped_column(Integer)
+    publisher: Mapped[str | None] = mapped_column(Text)
 
     # Monitoring
     monitored: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
@@ -46,16 +50,16 @@ class Manga(Base):
     # all | future | missing | existing | first | latest | none
 
     # Profiles
-    quality_profile_id: Mapped[Optional[int]] = mapped_column(
+    quality_profile_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("quality_profile.id", ondelete="SET NULL")
     )
-    language_profile_id: Mapped[Optional[int]] = mapped_column(
+    language_profile_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("language_profile.id", ondelete="SET NULL")
     )
 
     # Library path
     root_folder_path: Mapped[str] = mapped_column(Text, nullable=False, default="/manga")
-    folder_name: Mapped[Optional[str]] = mapped_column(Text)
+    folder_name: Mapped[str | None] = mapped_column(Text)
 
     # Counters (denormalised for performance)
     chapter_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -65,17 +69,17 @@ class Manga(Base):
     # Timestamps
     added_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    last_searched_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    last_searched_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     # Relationships
-    genres: Mapped[List["MangaGenre"]] = relationship(
+    genres: Mapped[list[MangaGenre]] = relationship(
         back_populates="manga", cascade="all, delete-orphan"
     )
-    chapters: Mapped[List["Chapter"]] = relationship(
+    chapters: Mapped[list[Chapter]] = relationship(
         back_populates="manga", cascade="all, delete-orphan", order_by="Chapter.chapter_number"
     )
-    quality_profile: Mapped[Optional["QualityProfile"]] = relationship(foreign_keys=[quality_profile_id])
-    language_profile: Mapped[Optional["LanguageProfile"]] = relationship(foreign_keys=[language_profile_id])
+    quality_profile: Mapped[QualityProfile | None] = relationship(foreign_keys=[quality_profile_id])
+    language_profile: Mapped[LanguageProfile | None] = relationship(foreign_keys=[language_profile_id])
 
 
 class MangaGenre(Base):
@@ -85,7 +89,7 @@ class MangaGenre(Base):
     manga_id: Mapped[int] = mapped_column(Integer, ForeignKey("manga.id", ondelete="CASCADE"))
     genre: Mapped[str] = mapped_column(Text, nullable=False)
 
-    manga: Mapped["Manga"] = relationship(back_populates="genres")
+    manga: Mapped[Manga] = relationship(back_populates="genres")
 
 
 class Chapter(Base):
@@ -97,10 +101,10 @@ class Chapter(Base):
     )
 
     chapter_number: Mapped[float] = mapped_column(Float, nullable=False)  # 1.5 for specials
-    volume_number: Mapped[Optional[int]] = mapped_column(Integer)
-    title: Mapped[Optional[str]] = mapped_column(Text)
+    volume_number: Mapped[int | None] = mapped_column(Integer)
+    title: Mapped[str | None] = mapped_column(Text)
 
-    mangadex_id: Mapped[Optional[str]] = mapped_column(Text, index=True)
+    mangadex_id: Mapped[str | None] = mapped_column(Text, index=True)
 
     # State
     monitored: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
@@ -108,21 +112,21 @@ class Chapter(Base):
     ignored: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Dates
-    release_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
-    download_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    release_date: Mapped[datetime | None] = mapped_column(DateTime)
+    download_date: Mapped[datetime | None] = mapped_column(DateTime)
 
     # Quality info
-    language: Mapped[Optional[str]] = mapped_column(Text)       # fr | en | raw
-    scanlator_group: Mapped[Optional[str]] = mapped_column(Text)
+    language: Mapped[str | None] = mapped_column(Text)       # fr | en | raw
+    scanlator_group: Mapped[str | None] = mapped_column(Text)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
-    manga: Mapped["Manga"] = relationship(back_populates="chapters")
-    files: Mapped[List["ChapterFile"]] = relationship(
+    manga: Mapped[Manga] = relationship(back_populates="chapters")
+    files: Mapped[list[ChapterFile]] = relationship(
         back_populates="chapter", cascade="all, delete-orphan"
     )
-    queue_items: Mapped[List["DownloadQueue"]] = relationship(back_populates="chapter")
+    queue_items: Mapped[list[DownloadQueue]] = relationship(back_populates="chapter")
 
 
 class ChapterFile(Base):
@@ -134,17 +138,17 @@ class ChapterFile(Base):
     )
 
     path: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    size: Mapped[Optional[int]] = mapped_column(Integer)            # bytes
-    format: Mapped[Optional[str]] = mapped_column(Text)             # cbz | cbr | pdf | zip
+    size: Mapped[int | None] = mapped_column(Integer)            # bytes
+    format: Mapped[str | None] = mapped_column(Text)             # cbz | cbr | pdf | zip
 
-    language: Mapped[Optional[str]] = mapped_column(Text)
-    scanlator_group: Mapped[Optional[str]] = mapped_column(Text)
-    release_group: Mapped[Optional[str]] = mapped_column(Text)
-    sha256: Mapped[Optional[str]] = mapped_column(Text)
+    language: Mapped[str | None] = mapped_column(Text)
+    scanlator_group: Mapped[str | None] = mapped_column(Text)
+    release_group: Mapped[str | None] = mapped_column(Text)
+    sha256: Mapped[str | None] = mapped_column(Text)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    chapter: Mapped["Chapter"] = relationship(back_populates="files")
+    chapter: Mapped[Chapter] = relationship(back_populates="files")
 
 
 # ── Quality & Language Profiles ───────────────────────────────────────────────
@@ -155,9 +159,9 @@ class QualityProfile(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
-    cutoff_id: Mapped[Optional[int]] = mapped_column(Integer)       # min acceptable quality rank
+    cutoff_id: Mapped[int | None] = mapped_column(Integer)       # min acceptable quality rank
 
-    items: Mapped[List["QualityProfileItem"]] = relationship(
+    items: Mapped[list[QualityProfileItem]] = relationship(
         back_populates="profile", cascade="all, delete-orphan", order_by="QualityProfileItem.priority"
     )
 
@@ -173,7 +177,7 @@ class QualityProfileItem(Base):
     allowed: Mapped[bool] = mapped_column(Boolean, default=True)
     priority: Mapped[int] = mapped_column(Integer, default=0)
 
-    profile: Mapped["QualityProfile"] = relationship(back_populates="items")
+    profile: Mapped[QualityProfile] = relationship(back_populates="items")
 
 
 class LanguageProfile(Base):
@@ -193,23 +197,23 @@ class ProwlarrConfig(Base):
     url: Mapped[str] = mapped_column(Text, nullable=False)
     api_key_enc: Mapped[str] = mapped_column(Text, nullable=False)  # Fernet-encrypted
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-    last_sync: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    last_sync: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 class Indexer(Base):
     __tablename__ = "indexer"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    prowlarr_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True)
+    prowlarr_id: Mapped[int | None] = mapped_column(Integer, unique=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     protocol: Mapped[str] = mapped_column(Text, nullable=False)     # torrent | usenet
-    type: Mapped[Optional[str]] = mapped_column(Text)               # torznab | newznab | rss
-    url: Mapped[Optional[str]] = mapped_column(Text)
-    api_key_enc: Mapped[Optional[str]] = mapped_column(Text)        # Fernet-encrypted
-    categories: Mapped[Optional[str]] = mapped_column(Text)         # JSON int array
+    type: Mapped[str | None] = mapped_column(Text)               # torznab | newznab | rss
+    url: Mapped[str | None] = mapped_column(Text)
+    api_key_enc: Mapped[str | None] = mapped_column(Text)        # Fernet-encrypted
+    categories: Mapped[str | None] = mapped_column(Text)         # JSON int array
     priority: Mapped[int] = mapped_column(Integer, default=25)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-    last_rss_id: Mapped[Optional[str]] = mapped_column(Text)
+    last_rss_id: Mapped[str | None] = mapped_column(Text)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
@@ -227,10 +231,10 @@ class DownloadClient(Base):
     host: Mapped[str] = mapped_column(Text, nullable=False)
     port: Mapped[int] = mapped_column(Integer, nullable=False)
     use_ssl: Mapped[bool] = mapped_column(Boolean, default=False)
-    url_base: Mapped[Optional[str]] = mapped_column(Text)
-    username: Mapped[Optional[str]] = mapped_column(Text)
-    password_enc: Mapped[Optional[str]] = mapped_column(Text)       # Fernet-encrypted
-    api_key_enc: Mapped[Optional[str]] = mapped_column(Text)        # Fernet-encrypted
+    url_base: Mapped[str | None] = mapped_column(Text)
+    username: Mapped[str | None] = mapped_column(Text)
+    password_enc: Mapped[str | None] = mapped_column(Text)       # Fernet-encrypted
+    api_key_enc: Mapped[str | None] = mapped_column(Text)        # Fernet-encrypted
 
     category: Mapped[str] = mapped_column(Text, default="scanarr")
     priority: Mapped[int] = mapped_column(Integer, default=0)
@@ -239,7 +243,7 @@ class DownloadClient(Base):
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    queue_items: Mapped[List["DownloadQueue"]] = relationship(back_populates="download_client")
+    queue_items: Mapped[list[DownloadQueue]] = relationship(back_populates="download_client")
 
 
 # ── Download Queue & History ──────────────────────────────────────────────────
@@ -249,38 +253,38 @@ class DownloadQueue(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    manga_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("manga.id", ondelete="SET NULL"))
-    chapter_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("chapter.id", ondelete="SET NULL"))
+    manga_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("manga.id", ondelete="SET NULL"))
+    chapter_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("chapter.id", ondelete="SET NULL"))
 
     title: Mapped[str] = mapped_column(Text, nullable=False)
-    indexer_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("indexer.id", ondelete="SET NULL"))
+    indexer_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("indexer.id", ondelete="SET NULL"))
     download_url: Mapped[str] = mapped_column(Text, nullable=False)
-    magnet_uri: Mapped[Optional[str]] = mapped_column(Text)
+    magnet_uri: Mapped[str | None] = mapped_column(Text)
     protocol: Mapped[str] = mapped_column(Text, nullable=False)     # torrent | usenet
 
-    download_client_id: Mapped[Optional[int]] = mapped_column(
+    download_client_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("download_client.id", ondelete="SET NULL")
     )
-    external_id: Mapped[Optional[str]] = mapped_column(Text)        # hash / nzb ID
+    external_id: Mapped[str | None] = mapped_column(Text)        # hash / nzb ID
 
-    quality: Mapped[Optional[str]] = mapped_column(Text)
-    language: Mapped[Optional[str]] = mapped_column(Text)
-    scanlator_group: Mapped[Optional[str]] = mapped_column(Text)
-    size: Mapped[Optional[int]] = mapped_column(Integer)
+    quality: Mapped[str | None] = mapped_column(Text)
+    language: Mapped[str | None] = mapped_column(Text)
+    scanlator_group: Mapped[str | None] = mapped_column(Text)
+    size: Mapped[int | None] = mapped_column(Integer)
 
     status: Mapped[str] = mapped_column(Text, nullable=False, default="queued")
     # queued | downloading | completed | failed | ignored | paused
     progress: Mapped[float] = mapped_column(Float, default=0.0)
-    error_message: Mapped[Optional[str]] = mapped_column(Text)
+    error_message: Mapped[str | None] = mapped_column(Text)
 
     added_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
-    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime)
 
-    manga: Mapped[Optional["Manga"]] = relationship()
-    chapter: Mapped[Optional["Chapter"]] = relationship(back_populates="queue_items")
-    download_client: Mapped[Optional["DownloadClient"]] = relationship(back_populates="queue_items")
-    indexer: Mapped[Optional["Indexer"]] = relationship()
+    manga: Mapped[Manga | None] = relationship()
+    chapter: Mapped[Chapter | None] = relationship(back_populates="queue_items")
+    download_client: Mapped[DownloadClient | None] = relationship(back_populates="queue_items")
+    indexer: Mapped[Indexer | None] = relationship()
 
 
 class History(Base):
@@ -288,24 +292,24 @@ class History(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    manga_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("manga.id", ondelete="SET NULL"))
-    chapter_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("chapter.id", ondelete="SET NULL"))
+    manga_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("manga.id", ondelete="SET NULL"))
+    chapter_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("chapter.id", ondelete="SET NULL"))
 
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
     # grabbed | downloadFailed | downloadImported | downloadIgnored | chapterFileDeleted
 
-    source_title: Mapped[Optional[str]] = mapped_column(Text)
-    indexer: Mapped[Optional[str]] = mapped_column(Text)
-    download_client: Mapped[Optional[str]] = mapped_column(Text)
-    quality: Mapped[Optional[str]] = mapped_column(Text)
-    language: Mapped[Optional[str]] = mapped_column(Text)
-    size: Mapped[Optional[int]] = mapped_column(Integer)
-    data: Mapped[Optional[str]] = mapped_column(Text)               # JSON blob
+    source_title: Mapped[str | None] = mapped_column(Text)
+    indexer: Mapped[str | None] = mapped_column(Text)
+    download_client: Mapped[str | None] = mapped_column(Text)
+    quality: Mapped[str | None] = mapped_column(Text)
+    language: Mapped[str | None] = mapped_column(Text)
+    size: Mapped[int | None] = mapped_column(Integer)
+    data: Mapped[str | None] = mapped_column(Text)               # JSON blob
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    manga: Mapped[Optional["Manga"]] = relationship()
-    chapter: Mapped[Optional["Chapter"]] = relationship()
+    manga: Mapped[Manga | None] = relationship()
+    chapter: Mapped[Chapter | None] = relationship()
 
 
 # ── Notifications ─────────────────────────────────────────────────────────────
@@ -338,7 +342,7 @@ class RootFolder(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     path: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    free_space: Mapped[Optional[int]] = mapped_column(Integer)
+    free_space: Mapped[int | None] = mapped_column(Integer)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
 
 

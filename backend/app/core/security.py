@@ -7,17 +7,17 @@ Security utilities:
 """
 from __future__ import annotations
 
-import secrets
 import logging
+import secrets
 from functools import lru_cache
 from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
 from fastapi import Depends, HTTPException, Security, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, APIKeyHeader
+from fastapi.security import APIKeyHeader, HTTPBasic, HTTPBasicCredentials
 from passlib.context import CryptContext
 
-from app.core.config import get_settings, Settings
+from app.core.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +97,10 @@ async def get_current_user(
 
     # ── API key path ──────────────────────────────────────────
     if api_key:
-        from app.db.database import AsyncSessionLocal
-        from app.db import models
         from sqlalchemy import select
+
+        from app.db import models
+        from app.db.database import AsyncSessionLocal
 
         async with AsyncSessionLocal() as db:
             result = await db.execute(select(models.AppConfig).where(models.AppConfig.id == 1))

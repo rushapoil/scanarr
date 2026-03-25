@@ -1,18 +1,17 @@
 """Pytest fixtures shared across all tests."""
 import os
 
-import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 # Point to a temp in-memory DB for tests
 os.environ.setdefault("CONFIG_DIR", "/tmp/scanarr-test")
 os.environ.setdefault("DATA_DIR", "/tmp/scanarr-manga")
 os.environ.setdefault("AUTH_REQUIRED", "false")
 
-from app.main import app
 from app.db.database import Base, get_db
+from app.main import app
 
 
 @pytest_asyncio.fixture

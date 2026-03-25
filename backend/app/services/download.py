@@ -6,7 +6,7 @@ SABnzbd / NZBGet stubs included.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -36,7 +36,7 @@ async def test_client(client_model) -> bool:
 
 # ── Add torrent/NZB to client ─────────────────────────────────────────────────
 
-async def add_download(client_model, url: str, magnet: Optional[str] = None) -> Optional[str]:
+async def add_download(client_model, url: str, magnet: str | None = None) -> str | None:
     """
     Add a download to the client.
     Returns the external ID (torrent hash / nzb ID) or None on failure.
@@ -61,8 +61,9 @@ async def add_download(client_model, url: str, magnet: Optional[str] = None) -> 
 async def sync_queue() -> None:
     """Update all active queue items with current progress from their client."""
     from sqlalchemy import select
-    from app.db.database import AsyncSessionLocal
+
     from app.db import models
+    from app.db.database import AsyncSessionLocal
 
     async with AsyncSessionLocal() as db:
         result = await db.execute(
@@ -121,14 +122,14 @@ async def _qbit_test(client) -> bool:
         return resp.text == "Ok."
 
 
-async def _qbit_add(client, url: str, magnet: Optional[str] = None) -> Optional[str]:
+async def _qbit_add(client, url: str, magnet: str | None = None) -> str | None:
     password = decrypt_secret(client.password_enc) if client.password_enc else ""
     async with httpx.AsyncClient(base_url=_qbit_base(client)) as c:
         await c.post(
             "/api/v2/auth/login",
             data={"username": client.username or "", "password": password},
         )
-        payload: Dict[str, Any] = {"category": client.category}
+        payload: dict[str, Any] = {"category": client.category}
         if magnet:
             payload["urls"] = magnet
         else:
@@ -153,7 +154,7 @@ async def _transmission_test(client) -> bool:
         return resp.status_code in (200, 409)
 
 
-async def _transmission_add(client, url: str, magnet: Optional[str] = None) -> Optional[str]:
+async def _transmission_add(client, url: str, magnet: str | None = None) -> str | None:
     scheme = "https" if client.use_ssl else "http"
     base = f"{scheme}://{client.host}:{client.port}/transmission/rpc"
     password = decrypt_secret(client.password_enc) if client.password_enc else ""
@@ -182,7 +183,7 @@ async def _transmission_add(client, url: str, magnet: Optional[str] = None) -> O
 
 # ── SABnzbd ───────────────────────────────────────────────────────────────────
 
-async def _sabnzbd_add(client, url: str) -> Optional[str]:
+async def _sabnzbd_add(client, url: str) -> str | None:
     scheme = "https" if client.use_ssl else "http"
     api_key = decrypt_secret(client.api_key_enc) if client.api_key_enc else ""
     base = f"{scheme}://{client.host}:{client.port}"

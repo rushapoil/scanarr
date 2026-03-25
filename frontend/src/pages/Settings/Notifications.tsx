@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bell, Plus, Trash2 } from 'lucide-react'
 import { settingsApi } from '../../api/settings'

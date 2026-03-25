@@ -4,7 +4,6 @@ Monitor service: searches for missing chapters and grabs matching releases.
 from __future__ import annotations
 
 import logging
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +11,10 @@ logger = logging.getLogger(__name__)
 async def run_rss_monitor() -> None:
     """Scheduled job: scan RSS feeds and grab matching releases."""
     from sqlalchemy import select
-    from app.db.database import AsyncSessionLocal
-    from app.db import models
+
     from app.core.security import decrypt_secret
+    from app.db import models
+    from app.db.database import AsyncSessionLocal
     from app.services.prowlarr import fetch_rss
 
     async with AsyncSessionLocal() as db:
@@ -51,6 +51,7 @@ async def _process_rss_entry(db, entry: dict, indexer) -> None:
         return
 
     from sqlalchemy import select
+
     from app.db import models
 
     # Find monitored mangas that match this title
@@ -104,9 +105,11 @@ def _extract_chapter_number(title: str) -> float | None:
 
 async def _grab_release(db, manga, chapter, entry: dict, indexer) -> None:
     """Add a release to the download queue and send it to the download client."""
-    from sqlalchemy import select
-    from app.db import models
     from datetime import datetime
+
+    from sqlalchemy import select
+
+    from app.db import models
 
     # Avoid duplicate grabs
     existing_q = await db.execute(
@@ -184,8 +187,9 @@ async def _grab_release(db, manga, chapter, entry: dict, indexer) -> None:
 async def search_missing_chapters(db, manga) -> None:
     """Trigger a manual Prowlarr search for all missing monitored chapters."""
     from sqlalchemy import select
-    from app.db import models
+
     from app.core.security import decrypt_secret
+    from app.db import models
     from app.services.prowlarr import search_releases
 
     prowlarr_q = await db.execute(
@@ -218,7 +222,7 @@ async def search_missing_chapters(db, manga) -> None:
 
 async def search_chapter(db, chapter) -> None:
     """Trigger a manual search for a single chapter."""
-    from sqlalchemy import select
+
     from app.db import models
 
     manga = await db.get(models.Manga, chapter.manga_id)

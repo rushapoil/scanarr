@@ -1,8 +1,6 @@
 """Structured logging configuration using stdlib logging with rich formatting."""
 import logging
 import logging.config
-import sys
-from pathlib import Path
 
 from app.core.config import get_settings
 

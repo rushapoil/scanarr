@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -9,10 +8,10 @@ from pydantic import BaseModel
 class ChapterFileOut(BaseModel):
     id: int
     path: str
-    size: Optional[int]
-    format: Optional[str]
-    language: Optional[str]
-    scanlator_group: Optional[str]
+    size: int | None
+    format: str | None
+    language: str | None
+    scanlator_group: str | None
     model_config = {"from_attributes": True}
 
 
@@ -20,20 +19,20 @@ class ChapterOut(BaseModel):
     id: int
     manga_id: int
     chapter_number: float
-    volume_number: Optional[int]
-    title: Optional[str]
-    mangadex_id: Optional[str]
+    volume_number: int | None
+    title: str | None
+    mangadex_id: str | None
     monitored: bool
     downloaded: bool
     ignored: bool
-    release_date: Optional[datetime]
-    download_date: Optional[datetime]
-    language: Optional[str]
-    scanlator_group: Optional[str]
-    files: List[ChapterFileOut] = []
+    release_date: datetime | None
+    download_date: datetime | None
+    language: str | None
+    scanlator_group: str | None
+    files: list[ChapterFileOut] = []
     model_config = {"from_attributes": True}
 
 
 class ChapterUpdate(BaseModel):
-    monitored: Optional[bool] = None
-    ignored: Optional[bool] = None
+    monitored: bool | None = None
+    ignored: bool | None = None

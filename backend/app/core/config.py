@@ -1,8 +1,8 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
-from pathlib import Path
 from functools import lru_cache
-from typing import List
+from pathlib import Path
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     AUTH_PASSWORD_HASH: str = ""
 
     # ── CORS ─────────────────────────────────────────────────
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8080"]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -66,6 +66,6 @@ class Settings(BaseSettings):
     METADATA_REFRESH_INTERVAL: int = 24  # hours
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     return Settings()

@@ -12,6 +12,7 @@ exclude = ["alembic/versions/"]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = [
     "E501",   # line too long — handled by formatter
+    "N802",   # function name should be lowercase (Pydantic Settings properties use UPPER_CASE)
     "N806",   # variable in function should be lowercase (SQLAlchemy aliases)
 ]
 

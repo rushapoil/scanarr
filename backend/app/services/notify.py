@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -23,8 +23,9 @@ async def dispatch(event: str, **context: Any) -> None:
            "on_chapter_delete" | "on_health_issue"
     """
     from sqlalchemy import select
-    from app.db.database import AsyncSessionLocal
+
     from app.db import models
+    from app.db.database import AsyncSessionLocal
 
     async with AsyncSessionLocal() as db:
         result = await db.execute(

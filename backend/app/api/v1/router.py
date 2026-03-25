@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import mangas, chapters, queue, history, settings, system, calendar
+from app.api.v1 import calendar, chapters, history, mangas, queue, settings, system
 
 api_router = APIRouter()
 

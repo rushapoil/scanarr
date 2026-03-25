@@ -2,23 +2,26 @@
 from __future__ import annotations
 
 import json
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_db, get_current_user
-from app.core.security import encrypt_secret, decrypt_secret
+from app.api.deps import get_current_user, get_db
+from app.core.security import decrypt_secret, encrypt_secret
 from app.db import models
 from app.schemas.settings import (
-    DownloadClientIn, DownloadClientOut,
+    DownloadClientIn,
+    DownloadClientOut,
     IndexerOut,
     LanguageProfileOut,
-    NamingConfigIn, NamingConfigOut,
-    NotificationIn, NotificationOut,
-    ProwlarrConfigIn, ProwlarrConfigOut,
+    NamingConfigIn,
+    NamingConfigOut,
+    NotificationIn,
+    NotificationOut,
+    ProwlarrConfigIn,
+    ProwlarrConfigOut,
     QualityProfileOut,
     RootFolderOut,
 )
@@ -95,7 +98,7 @@ async def sync_indexers(
 
 # ── Indexers ──────────────────────────────────────────────────────────────────
 
-@router.get("/indexer", response_model=List[IndexerOut])
+@router.get("/indexer", response_model=list[IndexerOut])
 async def list_indexers(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
@@ -106,7 +109,7 @@ async def list_indexers(
 
 # ── Download Clients ──────────────────────────────────────────────────────────
 
-@router.get("/downloadclient", response_model=List[DownloadClientOut])
+@router.get("/downloadclient", response_model=list[DownloadClientOut])
 async def list_download_clients(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
@@ -205,7 +208,7 @@ async def test_download_client(
 
 # ── Quality Profiles ──────────────────────────────────────────────────────────
 
-@router.get("/qualityprofile", response_model=List[QualityProfileOut])
+@router.get("/qualityprofile", response_model=list[QualityProfileOut])
 async def list_quality_profiles(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
@@ -218,7 +221,7 @@ async def list_quality_profiles(
 
 # ── Language Profiles ─────────────────────────────────────────────────────────
 
-@router.get("/languageprofile", response_model=List[LanguageProfileOut])
+@router.get("/languageprofile", response_model=list[LanguageProfileOut])
 async def list_language_profiles(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
@@ -260,7 +263,7 @@ async def update_naming(
 
 # ── Notifications ─────────────────────────────────────────────────────────────
 
-@router.get("/notification", response_model=List[NotificationOut])
+@router.get("/notification", response_model=list[NotificationOut])
 async def list_notifications(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),
@@ -308,7 +311,7 @@ async def delete_notification(
 
 # ── Root Folders ──────────────────────────────────────────────────────────────
 
-@router.get("/rootfolder", response_model=List[RootFolderOut])
+@router.get("/rootfolder", response_model=list[RootFolderOut])
 async def list_root_folders(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(get_current_user),

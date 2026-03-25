@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, BookOpen, Edit, Eye, EyeOff, Search, Trash2 } from 'lucide-react'
+import { ArrowLeft, BookOpen, Eye, EyeOff, Search, Trash2 } from 'lucide-react'
 import { mangaApi } from '../api/mangas'
 import Spinner from '../components/common/Spinner'
 import Badge from '../components/common/Badge'
