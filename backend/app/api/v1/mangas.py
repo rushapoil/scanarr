@@ -117,8 +117,11 @@ async def add_manga(
             logging.getLogger(__name__).warning("Metadata fetch failed: %s", exc)
 
     await db.commit()
-    await db.refresh(manga)
-    return manga
+    # Re-fetch with eager-loaded relationships so FastAPI can serialize them
+    result2 = await db.execute(
+        select(models.Manga).where(models.Manga.id == manga.id).options(selectinload(models.Manga.genres))
+    )
+    return result2.scalar_one()
 
 
 # ── PUT /manga/{id} ───────────────────────────────────────────────────────────
@@ -139,8 +142,11 @@ async def update_manga(
         setattr(manga, field, value)
 
     await db.commit()
-    await db.refresh(manga)
-    return manga
+    # Re-fetch with eager-loaded relationships so FastAPI can serialize them
+    result2 = await db.execute(
+        select(models.Manga).where(models.Manga.id == manga_id).options(selectinload(models.Manga.genres))
+    )
+    return result2.scalar_one()
 
 
 # ── DELETE /manga/{id} ────────────────────────────────────────────────────────
